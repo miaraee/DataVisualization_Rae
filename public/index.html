@@ -1,0 +1,58 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <title>Capstone_01_visualization_Rodas</title>
+  <style>
+    body { font-family: Arial, sans-serif; background: #f6f7fb; padding: 40px; }
+    .card { max-width: 700px; margin: auto; background: white; padding: 28px; border-radius: 18px; box-shadow: 0 10px 30px rgba(0,0,0,.08); }
+    button { background: #3867d6; color: white; border: 0; padding: 12px 18px; border-radius: 10px; cursor: pointer; }
+    input { margin: 18px 0; }
+    code { background: #eef1f7; padding: 4px 6px; border-radius: 6px; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>Capstone_01_visualization_Rodas</h1>
+    <p>Upload a CSV file. The backend API will store it and create a shareable visualization link.</p>
+
+    <input id="file" type="file" accept=".csv" />
+    <br />
+    <button onclick="uploadCSV()">Upload CSV</button>
+
+    <div id="result"></div>
+  </div>
+
+<script>
+async function uploadCSV() {
+  const file = document.getElementById('file').files[0];
+  if (!file) return alert('Choose a CSV file first.');
+
+  const formData = new FormData();
+  formData.append('file', file);
+
+  const response = await fetch('/api/upload-csv', {
+    method: 'POST',
+    body: formData
+  });
+
+  const data = await response.json();
+
+  if (data.error) {
+    document.getElementById('result').innerHTML = `<p style="color:red;">${data.error}</p>`;
+    return;
+  }
+
+  const fullUrl = `${window.location.origin}${data.shareUrl}`;
+
+  document.getElementById('result').innerHTML = `
+    <h3>Visualization created</h3>
+    <p><strong>Rows stored:</strong> ${data.rows}</p>
+    <p><strong>Shareable link:</strong></p>
+    <p><code>${fullUrl}</code></p>
+    <p><a href="${data.shareUrl}" target="_blank">Open visualization</a></p>
+  `;
+}
+</script>
+</body>
+</html>

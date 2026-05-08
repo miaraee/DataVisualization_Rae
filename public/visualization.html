@@ -1,0 +1,74 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <title>Interactive Visualization</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 0; background: white; color: #172033; }
+    .wrap { padding: 24px; }
+    .chartbox { height: 520px; }
+    .controls { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 16px; }
+    select, button { padding: 9px 12px; border-radius: 10px; border: 1px solid #d8deea; }
+    button { background: #3867d6; color: white; cursor: pointer; }
+    table { width: 100%; border-collapse: collapse; margin-top: 18px; font-size: 13px; }
+    th, td { border-bottom: 1px solid #edf0f5; padding: 8px; }
+    input { width: 95%; padding: 6px; border: 1px solid #d8deea; border-radius: 8px; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>Interactive Visualization</h1>
+    <div class="controls">
+      <label>X axis <select id="xSelect"></select></label>
+      <label>Y axis <select id="ySelect"></select></label>
+      <button onclick="saveChanges()">Save edits to API</button>
+    </div>
+    <div class="chartbox"><canvas id="chart"></canvas></div>
+    <h2>Edit data</h2>
+    <div id="table"></div>
+  </div>
+
+<script>
+let datasetId;
+let rows = [];
+let columns = [];
+let chart;
+
+async function loadDataset() {
+  const params = new URLSearchParams(window.location.search);
+  datasetId = params.get('id');
+
+  if (!datasetId) {
+    document.body.innerHTML = '<p>No dataset ID found.</p>';
+    return;
+  }
+
+  const response = await fetch(`/api/datasets/${datasetId}`);
+  const dataset = await response.json();
+
+  rows = dataset.rows;
+  columns = Object.keys(rows[0] || {});
+
+  setupControls();
+  renderChart();
+  renderTable();
+}
+
+function setupControls() {
+  const xSelect = document.getElementById('xSelect');
+  const ySelect = document.getElementById('ySelect');
+  xSelect.innerHTML = '';
+  ySelect.innerHTML = '';
+
+  columns.forEach(col => {
+    xSelect.add(new Option(col, col));
+    ySelect.add(new Option(col, col));
+  });
+
+  const numeric = columns.find(col => rows.some(row => !isNaN(Number(String(row[col]).replace(/[$,%\s,]/g, '')))));
+  xSelect.value = columns[0];
+  ySelect.value = numeric || columns[1] || columns[0];
+
+  xSelect.onchange = renderChart;
+</html>

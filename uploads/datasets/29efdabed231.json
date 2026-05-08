@@ -1,0 +1,104 @@
+{
+  "id": "29efdabed231",
+  "createdAt": "2026-05-08T04:56:28.495Z",
+  "rows": [
+    {
+      "sales_month": "2014-01-01 00:00:00",
+      "transaction_count": "12334",
+      "total_bottles_sold": "110644",
+      "total_revenue": "1864116.52",
+      "avg_bottle_price": "20.29"
+    },
+    {
+      "sales_month": "2014-02-01 00:00:00",
+      "transaction_count": "12704",
+      "total_bottles_sold": "127134",
+      "total_revenue": "2200640.12",
+      "avg_bottle_price": "20.29"
+    },
+    {
+      "sales_month": "2014-03-01 00:00:00",
+      "transaction_count": "14130",
+      "total_bottles_sold": "124218",
+      "total_revenue": "2024301.48",
+      "avg_bottle_price": "19.98"
+    },
+    {
+      "sales_month": "2014-04-01 00:00:00",
+      "transaction_count": "16542",
+      "total_bottles_sold": "170238",
+      "total_revenue": "2900754.68",
+      "avg_bottle_price": "20.34"
+    },
+    {
+      "sales_month": "2014-05-01 00:00:00",
+      "transaction_count": "16392",
+      "total_bottles_sold": "159522",
+      "total_revenue": "2566755.56",
+      "avg_bottle_price": "19.95"
+    },
+    {
+      "sales_month": "2014-06-01 00:00:00",
+      "transaction_count": "8643",
+      "total_bottles_sold": "83957",
+      "total_revenue": "1400199.52",
+      "avg_bottle_price": "19.87"
+    },
+    {
+      "sales_month": "2014-07-01 00:00:00",
+      "transaction_count": "8561",
+      "total_bottles_sold": "82722",
+      "total_revenue": "1348391.57",
+      "avg_bottle_price": "20.07"
+    },
+    {
+      "sales_month": "2014-08-01 00:00:00",
+      "transaction_count": "7917",
+      "total_bottles_sold": "75048",
+      "total_revenue": "1230940.45",
+      "avg_bottle_price": "20.14"
+    },
+    {
+      "sales_month": "2014-09-01 00:00:00",
+      "transaction_count": "7239",
+      "total_bottles_sold": "67031",
+      "total_revenue": "1157122.26",
+      "avg_bottle_price": "20.21"
+    },
+    {
+      "sales_month": "2014-10-01 00:00:00",
+      "transaction_count": "7599",
+      "total_bottles_sold": "69576",
+      "total_revenue": "1224733.14",
+      "avg_bottle_price": "21.61"
+    },
+    {
+      "sales_month": "2014-11-01 00:00:00",
+      "transaction_count": "6094",
+      "total_bottles_sold": "55164",
+      "total_revenue": "947634.57",
+      "avg_bottle_price": "20.62"
+    },
+    {
+      "sales_month": "2014-12-01 00:00:00",
+      "transaction_count": "2547",
+      "total_bottles_sold": "23139",
+      "total_revenue": "410793.86",
+      "avg_bottle_price": "21.20"
+    },
+    {
+      "sales_month": "2015-01-01 00:00:00",
+      "transaction_count": "6705",
+      "total_bottles_sold": "61448",
+      "total_revenue": "1023496.94",
+      "avg_bottle_price": "20.32"
+    },
+    {
+      "sales_month": "2015-02-01 00:00:00",
+      "transaction_count": "7096",
+      "total_bottles_sold": "64193",
+      "total_revenue": "1111382.97",
+      "avg_bottle_price": "20.83"
+    }
+  ]
+}
