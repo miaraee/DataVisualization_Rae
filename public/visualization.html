@@ -1,74 +1,311 @@
 <!doctype html>
-<html>
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Interactive Visualization</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>DataVisualization_Rae</title>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
-    body { font-family: Arial, sans-serif; margin: 0; background: white; color: #172033; }
-    .wrap { padding: 24px; }
+    body { margin: 0; font-family: Arial, sans-serif; background: linear-gradient(135deg, #f6f7fb, #eef4ff); color: #172033; }
+    .wrap { max-width: 1200px; margin: 0 auto; padding: 28px; }
+    .hero { background: white; border-radius: 24px; box-shadow: 0 16px 40px rgba(0,0,0,.08); padding: 30px; margin-bottom: 20px; border: 1px solid #edf0f5; }
+    .brand { display: inline-block; background: #eef4ff; color: #3867d6; padding: 8px 12px; border-radius: 999px; font-size: 13px; font-weight: 700; margin-bottom: 14px; }
+    h1 { margin: 0 0 8px; font-size: 38px; letter-spacing: -1px; }
+    h2 { margin-top: 0; }
+    p { color: #5a6475; }
+    .card { background: white; border-radius: 22px; box-shadow: 0 10px 30px rgba(0,0,0,.07); padding: 24px; margin-bottom: 20px; border: 1px solid #edf0f5; }
+    .controls { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin-top: 18px; }
+    select, button, input { border: 1px solid #d8deea; border-radius: 12px; padding: 10px 12px; background: white; font-size: 14px; }
+    button { cursor: pointer; background: #3867d6; color: white; border-color: #3867d6; font-weight: 700; }
+    button.secondary { background: white; color: #172033; }
+    button.danger { background: #fff1f1; color: #a40000; border-color: #ffd0d0; }
+    .stats { display: grid; grid-template-columns: repeat(4, minmax(120px, 1fr)); gap: 12px; margin: 18px 0; }
+    .stat { background: #f3f6fb; padding: 14px; border-radius: 16px; }
+    .stat span { color: #6d7789; font-size: 12px; }
+    .stat b { display: block; font-size: 22px; margin-top: 4px; }
     .chartbox { height: 520px; }
-    .controls { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 16px; }
-    select, button { padding: 9px 12px; border-radius: 10px; border: 1px solid #d8deea; }
-    button { background: #3867d6; color: white; cursor: pointer; }
-    table { width: 100%; border-collapse: collapse; margin-top: 18px; font-size: 13px; }
-    th, td { border-bottom: 1px solid #edf0f5; padding: 8px; }
-    input { width: 95%; padding: 6px; border: 1px solid #d8deea; border-radius: 8px; }
+    .tableWrap { overflow: auto; max-height: 420px; border: 1px solid #edf0f5; border-radius: 16px; margin-top: 16px; }
+    table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    th, td { border-bottom: 1px solid #edf0f5; padding: 7px; text-align: left; min-width: 120px; }
+    th { background: #f8faff; position: sticky; top: 0; z-index: 1; }
+    th input, td input { width: calc(100% - 18px); border: 1px solid transparent; padding: 7px; border-radius: 8px; }
+    th input { font-weight: 700; background: white; border-color: #d8deea; }
+    td input:focus, th input:focus { outline: none; border-color: #3867d6; background: #f6f9ff; }
+    .rowActions { min-width: 70px; width: 70px; position: sticky; left: 0; background: #fff; }
+    .error { color: #b00020; font-weight: 700; }
+    .small { font-size: 12px; color: #6d7789; }
+    :fullscreen { background: white; padding: 28px; }
   </style>
 </head>
 <body>
   <div class="wrap">
-    <h1>Interactive Visualization</h1>
-    <div class="controls">
-      <label>X axis <select id="xSelect"></select></label>
-      <label>Y axis <select id="ySelect"></select></label>
-      <button onclick="saveChanges()">Save edits to API</button>
+    <div class="hero">
+      <div class="brand">DataVisualization_Rae</div>
+      <h1>Interactive Visualization</h1>
+      <p>API-powered chart editor with hover details, editable data, and custom bar colors.</p>
+      <div class="controls">
+        <label>X axis <select id="xSelect"></select></label>
+        <label>Y axis <select id="ySelect"></select></label>
+        <label>Chart <select id="chartType"><option value="bar">Bar</option><option value="line">Line</option><option value="scatter">Dot plot</option></select></label>
+        <label>Sort <select id="sortType"><option value="none">Original</option><option value="desc">High to low</option><option value="asc">Low to high</option></select></label>
+        <button onclick="renderChart()">Generate chart</button>
+        <button class="secondary" onclick="document.getElementById('chartCard').requestFullscreen()">Present fullscreen</button>
+        <button class="secondary" onclick="saveChanges()">Save edits to API</button>
+      </div>
+      <p id="status" class="small"></p>
     </div>
-    <div class="chartbox"><canvas id="chart"></canvas></div>
-    <h2>Edit data</h2>
-    <div id="table"></div>
+
+    <div class="card" id="chartCard">
+      <h2 id="chartTitle">Chart</h2>
+      <div class="stats" id="stats"></div>
+      <div class="chartbox"><canvas id="chart"></canvas></div>
+    </div>
+
+    <div class="card">
+      <h2>Edit data</h2>
+      <p class="small">Rename columns, edit cells, and pick colors per row. Changes update the chart automatically.</p>
+      <div class="controls">
+        <button class="secondary" onclick="addRow()">Add row</button>
+        <button class="secondary" onclick="addColumn()">Add column</button>
+      </div>
+      <div class="tableWrap" id="tableWrap"></div>
+    </div>
   </div>
 
 <script>
 let datasetId;
 let rows = [];
 let columns = [];
+let rowColors = [];
 let chart;
+let renderTimer;
+
+const xSelect = document.getElementById('xSelect');
+const ySelect = document.getElementById('ySelect');
+const chartType = document.getElementById('chartType');
+const sortType = document.getElementById('sortType');
+const statusEl = document.getElementById('status');
+
+[xSelect, ySelect, chartType, sortType].forEach(el => el.addEventListener('change', renderChart));
 
 async function loadDataset() {
   const params = new URLSearchParams(window.location.search);
   datasetId = params.get('id');
 
   if (!datasetId) {
-    document.body.innerHTML = '<p>No dataset ID found.</p>';
+    statusEl.textContent = 'No dataset ID found in the link.';
+    statusEl.className = 'error';
     return;
   }
 
-  const response = await fetch(`/api/datasets/${datasetId}`);
-  const dataset = await response.json();
+  try {
+    const response = await fetch(`/api/datasets/${datasetId}`);
+    const dataset = await response.json();
+    if (dataset.error) throw new Error(dataset.error);
 
-  rows = dataset.rows;
-  columns = Object.keys(rows[0] || {});
+    rows = dataset.rows || [];
+    if (!rows.length) throw new Error('Dataset loaded, but it has no rows.');
 
-  setupControls();
-  renderChart();
-  renderTable();
+    columns = Object.keys(rows[0]);
+    rowColors = rows.map((row, i) => row.Color || defaultColor(i));
+    normalizeRows();
+    setupColumns();
+    renderEditableTable();
+    renderChart();
+    statusEl.textContent = `Loaded ${rows.length} rows from API.`;
+  } catch (err) {
+    statusEl.textContent = err.message;
+    statusEl.className = 'error';
+  }
 }
 
-function setupControls() {
-  const xSelect = document.getElementById('xSelect');
-  const ySelect = document.getElementById('ySelect');
+function normalizeRows() {
+  rows = rows.map(r => {
+    const clean = {};
+    columns.forEach(c => clean[c] = r[c] ?? '');
+    return clean;
+  });
+}
+
+function setupColumns(keepX, keepY) {
   xSelect.innerHTML = '';
   ySelect.innerHTML = '';
+  columns.forEach(c => {
+    xSelect.add(new Option(c, c));
+    ySelect.add(new Option(c, c));
+  });
+  const numericCols = columns.filter(c => rows.some(r => isFinite(cleanNumber(r[c]))));
+  const textCols = columns.filter(c => !numericCols.includes(c));
+  xSelect.value = columns.includes(keepX) ? keepX : (textCols[0] || columns[0]);
+  ySelect.value = columns.includes(keepY) ? keepY : (numericCols[0] || columns[1] || columns[0]);
+}
 
-  columns.forEach(col => {
-    xSelect.add(new Option(col, col));
-    ySelect.add(new Option(col, col));
+function renderEditableTable() {
+  const table = document.createElement('table');
+  table.innerHTML = `
+    <thead><tr>
+      <th class="rowActions">Row</th><th>Color</th>
+      ${columns.map((c, colIndex) => `<th><input value="${escapeHtml(c)}" data-col-index="${colIndex}" class="headerInput"></th>`).join('')}
+    </tr></thead>
+    <tbody>
+      ${rows.map((row, rowIndex) => `<tr>
+        <td class="rowActions"><button class="danger" data-delete-row="${rowIndex}">Delete</button></td>
+        <td><input type="color" value="${rowColors[rowIndex] || defaultColor(rowIndex)}" data-color-row="${rowIndex}" class="colorPicker"></td>
+        ${columns.map(c => `<td><input value="${escapeHtml(row[c])}" data-row="${rowIndex}" data-col="${escapeHtml(c)}"></td>`).join('')}
+      </tr>`).join('')}
+    </tbody>`;
+
+  document.getElementById('tableWrap').innerHTML = '';
+  document.getElementById('tableWrap').appendChild(table);
+
+  table.querySelectorAll('td input:not(.colorPicker)').forEach(input => {
+    input.addEventListener('input', e => {
+      rows[Number(e.target.dataset.row)][e.target.dataset.col] = e.target.value;
+      scheduleChartRender();
+    });
   });
 
-  const numeric = columns.find(col => rows.some(row => !isNaN(Number(String(row[col]).replace(/[$,%\s,]/g, '')))));
-  xSelect.value = columns[0];
-  ySelect.value = numeric || columns[1] || columns[0];
+  table.querySelectorAll('.colorPicker').forEach(input => {
+    input.addEventListener('input', e => {
+      rowColors[Number(e.target.dataset.colorRow)] = e.target.value;
+      renderChart();
+    });
+  });
 
-  xSelect.onchange = renderChart;
+  table.querySelectorAll('.headerInput').forEach(input => {
+    input.addEventListener('change', e => {
+      const oldX = xSelect.value;
+      const oldY = ySelect.value;
+      const index = Number(e.target.dataset.colIndex);
+      const oldName = columns[index];
+      let newName = e.target.value.trim() || oldName;
+      newName = makeUniqueColumnName(newName, oldName);
+      columns[index] = newName;
+      rows.forEach(row => {
+        row[newName] = row[oldName];
+        if (newName !== oldName) delete row[oldName];
+      });
+      setupColumns(oldX === oldName ? newName : oldX, oldY === oldName ? newName : oldY);
+      renderEditableTable();
+      renderChart();
+    });
+  });
+
+  table.querySelectorAll('[data-delete-row]').forEach(btn => {
+    btn.addEventListener('click', e => {
+      const idx = Number(e.target.dataset.deleteRow);
+      rows.splice(idx, 1);
+      rowColors.splice(idx, 1);
+      renderEditableTable();
+      renderChart();
+    });
+  });
+}
+
+function renderChart() {
+  if (!rows.length || !columns.length) return;
+  const xCol = xSelect.value;
+  const yCol = ySelect.value;
+  let data = rows.map((r, i) => ({ label: String(r[xCol]), value: cleanNumber(r[yCol]), raw: r, color: rowColors[i] || defaultColor(i) }))
+    .filter(d => d.label && isFinite(d.value));
+
+  if (!data.length) {
+    statusEl.textContent = 'No numeric values found for the selected Y axis.';
+    statusEl.className = 'error';
+    return;
+  }
+
+  if (sortType.value === 'asc') data.sort((a,b) => a.value - b.value);
+  if (sortType.value === 'desc') data.sort((a,b) => b.value - a.value);
+
+  const total = data.reduce((s,d) => s + d.value, 0);
+  document.getElementById('chartTitle').textContent = `${yCol} by ${xCol}`;
+  document.getElementById('stats').innerHTML = `
+    <div class="stat"><span>Total</span><b>${formatNum(total)}</b></div>
+    <div class="stat"><span>Average</span><b>${formatNum(total / data.length)}</b></div>
+    <div class="stat"><span>Max</span><b>${formatNum(Math.max(...data.map(d => d.value)))}</b></div>
+    <div class="stat"><span>Rows</span><b>${data.length}</b></div>`;
+
+  if (chart) chart.destroy();
+  const type = chartType.value === 'scatter' ? 'scatter' : chartType.value;
+  const chartData = type === 'scatter'
+    ? data.map((d, i) => ({ x: i + 1, y: d.value, label: d.label, raw: d.raw }))
+    : data.map(d => d.value);
+
+  chart = new Chart(document.getElementById('chart'), {
+    type,
+    data: {
+      labels: data.map(d => d.label),
+      datasets: [{
+        label: yCol,
+        data: chartData,
+        borderWidth: 2,
+        backgroundColor: data.map(d => d.color),
+        borderColor: data.map(d => d.color),
+        pointBackgroundColor: data.map(d => d.color),
+        pointRadius: 6
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      interaction: { mode: 'nearest', intersect: true },
+      plugins: {
+        tooltip: {
+          callbacks: {
+            title: items => type === 'scatter' ? data[items[0].dataIndex].label : items[0].label,
+            label: item => {
+              const d = data[item.dataIndex];
+              const pct = total ? ((d.value / total) * 100).toFixed(1) : '0.0';
+              return `${yCol}: ${formatNum(d.value)} (${pct}% of total)`;
+            },
+            afterBody: items => Object.entries(data[items[0].dataIndex].raw).slice(0, 8).map(([k,v]) => `${k}: ${v}`)
+          }
+        }
+      }
+    }
+  });
+  statusEl.className = 'small';
+}
+
+function addRow() {
+  const row = {};
+  columns.forEach(c => row[c] = '');
+  rows.push(row);
+  rowColors.push(defaultColor(rows.length - 1));
+  renderEditableTable();
+  renderChart();
+}
+
+function addColumn() {
+  let name = makeUniqueColumnName(`Column ${columns.length + 1}`, '');
+  columns.push(name);
+  rows.forEach(r => r[name] = '');
+  setupColumns(xSelect.value, ySelect.value);
+  renderEditableTable();
+}
+
+async function saveChanges() {
+  rows.forEach((row, i) => row.Color = rowColors[i] || defaultColor(i));
+  const response = await fetch(`/api/datasets/${datasetId}`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ rows })
+  });
+  const result = await response.json();
+  alert(result.error || 'Saved edits to API.');
+}
+
+function scheduleChartRender() {
+  clearTimeout(renderTimer);
+  renderTimer = setTimeout(renderChart, 250);
+}
+function cleanNumber(v) { return Number(String(v).replace(/[$,%\s,]/g, '')); }
+function defaultColor(i) { return ['#3867d6','#20bf6b','#eb3b5a','#8854d0','#fa8231','#0fb9b1','#f7b731','#2d98da'][i % 8]; }
+function makeUniqueColumnName(name, oldName) { if (name === oldName) return name; let c = name, i = 2; while (columns.includes(c)) c = `${name} ${i++}`; return c; }
+function formatNum(n) { return Number(n).toLocaleString(undefined, { maximumFractionDigits: 2 }); }
+function escapeHtml(v) { return String(v ?? '').replace(/[&<>"]/g, s => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[s])); }
+loadDataset();
+</script>
+</body>
 </html>
